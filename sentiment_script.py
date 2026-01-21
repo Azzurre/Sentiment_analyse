@@ -5,6 +5,7 @@ import random
 import string
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 
 from sklearn.model_selection import train_test_split
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -132,3 +133,7 @@ test_sentences = [
 for text in test_sentences:
     print(f"Text: {text} => Predicted Sentiment: {predict_sentiment(text)}")
     
+    
+# Save the trained model and vectorizer
+joblib.dump(model, 'sentiment_model.joblib')
+joblib.dump(vectorizer, 'vectorizer.joblib')
