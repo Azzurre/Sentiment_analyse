@@ -163,41 +163,19 @@ def load_artifacts(model_path="sentiment_model.joblib", vectorizer_path="vectori
     return model, vectorizer
 
 if __name__ == "__main__":
-    setup_nltk()
+    download_nltk_data()
     
-    df = load_dataset
-
-# Apply VADER sentiment analysis to the entire dataset
-df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
-print(df[['sentence', 'vader_sentiment']].head())
-print("VADER Sentiment Distribution:")
-print(df['vader_sentiment'].value_counts())
-
-
-# Evaluate VADER sentiment analysis accuracy
-df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
-
-vader_labels = df['vader_sentiment'].map({'positive': 1, 'negative': 0, 'neutral': -1})
-valid_indices = vader_labels != -1
-
-print("VADER Sentiment Analysis Accuracy (excluding neutral):")
-print(accuracy_score(y[valid_indices], vader_labels[valid_indices]))
-
-def predict_sentiment(text):
-    processed = preprocess_text(text)
-    vectorized = vectorizer.transform([processed])
-    prediction = model.predict(vectorized)
-    return 'positive' if prediction[0] == 1 else 'negative'
-
-test_sentences = [
-    "I absolutely love this! Best purchase ever.",
-    "This is terrible, I want my money back.",
-    "It's okay, nothing special."
-]
-for text in test_sentences:
-    print(f"Text: {text} => Predicted Sentiment: {predict_sentiment(text)}")
+    df = load_dataset()
+    model, vectorizer = train_and_evaluate(df)
+    save_artifacts(model, vectorizer)
     
-    
-# Save the trained model and vectorizer
-joblib.dump(model, 'sentiment_model.joblib')
-joblib.dump(vectorizer, 'vectorizer.joblib')
+    examples = [
+        "I absolutely love this!!! 🔥🔥 #blessed",
+        "Worst service ever. never again. @company",
+        "It’s okay tbh… nothing crazy"
+    ]
+
+    for t in examples:
+        result = analyze_social_post(t, model, vectorizer)
+        print(result)
+        print(json.dumps(result, indent=2))
