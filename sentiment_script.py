@@ -19,10 +19,10 @@ nltk.download('all')
 print("All NLTK data packages have been downloaded.")
 
 # Load sentiment data from JSON files
-with open('sentiment_data.json', 'r') as f:
+with open('positive_data.json', 'r') as f:
     positive_data = json.load(f)
 
-with open('negative_sentiment_data.json', 'r') as f:
+with open('negative_data.json', 'r') as f:
     negative_data = json.load(f)
     
 data = positive_data + negative_data
