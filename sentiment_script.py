@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 nltk.download('all')
 print("All NLTK data packages have been downloaded.")
@@ -63,3 +64,13 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_
 # Train Naive Bayes classifier
 model = MultinomialNB()
 model.fit(x_train, y_train)
+
+# Evaluate the model
+y_pred = model.predict(x_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:")
+print(cm)
