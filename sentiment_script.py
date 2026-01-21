@@ -84,3 +84,31 @@ plt.title('Confusion Matrix')
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.show()
+
+#Sentiment Analysis using VADER
+sia = SentimentIntensityAnalyzer()
+def get_vader_sentiment(text):
+    scores = sia.polarity_scores(text)
+    compound = scores['compound']
+    if compound >= 0.05:
+        return 'positive'
+    elif compound <= -0.05:
+        return 'negative'
+    else:
+        return 'neutral'
+    
+sample_sentences = [
+    "I love this product! It works great and exceeds my expectations.",
+    "This is the worst service I have ever received.",
+    "The movie was okay, not too bad but not great either."
+]
+
+for sentence in sample_sentences:
+    sentiment = get_vader_sentiment(sentence)
+    print(f"Sentence: {sentence}\nVADER Sentiment: {sentiment}\n") 
+
+# Apply VADER sentiment analysis to the entire dataset
+df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
+print(df[['sentence', 'vader_sentiment']].head())
+print("VADER Sentiment Distribution:")
+print(df['vader_sentiment'].value_counts())
