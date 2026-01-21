@@ -107,17 +107,19 @@ def train_and_evaluate(df: pd.DataFrame):
 
 #Sentiment Analysis using VADER
 sia = SentimentIntensityAnalyzer()
-def get_vader_sentiment(text):
-    scores = sia.polarity_scores(text)
-    compound = scores['compound']
-    if compound >= 0.05:
-        return 'positive'
-    elif compound <= -0.05:
-        return 'negative'
-    else:
-        return 'neutral'
-  
-  
+def predict_sentiment_ml(text: str, model, vectorizer):
+    processed = preprocess_text(text)
+    X = vectorizer.transform([processed])
+    
+    #predict prob
+    
+    proba = model.predict_proba(X)[0]
+    pred = proba.argmax()
+    confidence = float(proba[pred])
+    
+    label = 'positive' if pred == 1 else 'negative'
+    return label, confidence
+
 # Test VADER sentiment analysis on a sample text
 sample_text = "I love this product! It works great and exceeds my expectations."
 print(get_vader_sentiment(sample_text)) 
