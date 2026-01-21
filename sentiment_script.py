@@ -163,6 +163,11 @@ def save_artifacts(model, vectorizer, model_path="sentiment_model.joblib", vecto
     joblib.dump(model, model_path)
     joblib.dump(vectorizer, vectorizer_path)
 
+def load_artifacts(model_path="sentiment_model.joblib", vectorizer_path="vectorizer.joblib"):
+    model = joblib.load(model_path)
+    vectorizer = joblib.load(vectorizer_path)
+    return model, vectorizer
+
 
 if __name__ == "__main__":
     download_nltk_data()
