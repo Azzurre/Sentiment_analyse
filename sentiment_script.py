@@ -98,22 +98,37 @@ def get_vader_sentiment(text):
         return 'neutral'
   
   
-# Test VADER sentiment analysis on sample sentences  
-sample_sentences = [
-    "I love this product! It works great and exceeds my expectations.",
-    "This is the worst service I have ever received.",
-    "The movie was okay, not too bad but not great either."
-]
-
+# Test VADER sentiment analysis on a sample text
 sample_text = "I love this product! It works great and exceeds my expectations."
-print(get_vader_sentiment(sample_text))
-
-#for sentence in sample_sentences:
-#    sentiment = get_vader_sentiment(sentence)
-#    print(f"Sentence: {sentence}\nVADER Sentiment: {sentiment}\n") 
+print(get_vader_sentiment(sample_text)) 
 
 # Apply VADER sentiment analysis to the entire dataset
 df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
 print(df[['sentence', 'vader_sentiment']].head())
 print("VADER Sentiment Distribution:")
 print(df['vader_sentiment'].value_counts())
+
+
+# Evaluate VADER sentiment analysis accuracy
+df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
+
+vader_labels = df['vader_sentiment'].map({'positive': 1, 'negative': 0, 'neutral': -1})
+valid_indices = vader_labels != -1
+
+print("VADER Sentiment Analysis Accuracy (excluding neutral):")
+print(accuracy_score(y[valid_indices], vader_labels[valid_indices]))
+
+def predict_sentiment(text):
+    processed = preprocess_text(text)
+    vectorized = vectorizer.transform([processed])
+    prediction = model.predict(vectorized)
+    return 'positive' if prediction[0] == 1 else 'negative'
+
+test_sentences = [
+    "I absolutely love this! Best purchase ever.",
+    "This is terrible, I want my money back.",
+    "It's okay, nothing special."
+]
+for text in test_sentences:
+    print(f"Text: {text} => Predicted Sentiment: {predict_sentiment(text)}")
+    
