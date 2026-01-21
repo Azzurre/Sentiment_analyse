@@ -105,9 +105,12 @@ sample_sentences = [
     "The movie was okay, not too bad but not great either."
 ]
 
-for sentence in sample_sentences:
-    sentiment = get_vader_sentiment(sentence)
-    print(f"Sentence: {sentence}\nVADER Sentiment: {sentiment}\n") 
+sample_text = "I love this product! It works great and exceeds my expectations."
+print(get_vader_sentiment(sample_text))
+
+#for sentence in sample_sentences:
+#    sentiment = get_vader_sentiment(sentence)
+#    print(f"Sentence: {sentence}\nVADER Sentiment: {sentiment}\n") 
 
 # Apply VADER sentiment analysis to the entire dataset
 df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
