@@ -3,6 +3,8 @@ import pandas as pd
 import json
 import random
 import string
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -74,3 +76,11 @@ print(classification_report(y_test, y_pred))
 cm = confusion_matrix(y_test, y_pred)
 print("Confusion Matrix:")
 print(cm)
+
+# Visualize Confusion Matrix
+plt.figure(figsize=(8,6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.show()
