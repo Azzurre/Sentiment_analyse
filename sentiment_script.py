@@ -49,6 +49,12 @@ def preprocess_text(text):
 df['processed_text'] = df['sentence'].apply(preprocess_text)
 print(df[['sentence', 'processed_text']].head())
 
+# Vectorization
+vectorizer = CountVectorizer()
+x = vectorizer.fit_transform(df['processed_text'])
+y = df['label'].map({'positive': 1, 'negative': 0}).values
+
+print(f"Feature matrix shape: {x.shape}")
 
 
 
