@@ -21,11 +21,11 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 def download_nltk_data():
     needed = [
-        'punkt',
-        'stopwords',
-        'wordnet',
-        'vader_lexicon',
-        'omw-1.4'
+        "punkt",
+        "stopwords",
+        "wordnet",
+        "vader_lexicon",
+        "omw-1.4"
     ]
 
     for package in needed:
