@@ -1,5 +1,7 @@
 import nltk
 import pandas as pd
+import json
+import random
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
@@ -23,3 +25,14 @@ def preprocess_text(text):
     lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
     
     return ' '.join(lemmatized_tokens)
+
+with open('sentiment_data.json', 'r') as f:
+    positive_data = json.load(f)
+
+with open('negative_sentiment_data.json', 'r') as f:
+    negative_data = json.load(f)
+    
+data = positive_data + negative_data
+random.shuffle(data)
+
+print(f"Total records loaded: {len(data)}")
