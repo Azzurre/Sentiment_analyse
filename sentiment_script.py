@@ -82,42 +82,28 @@ def load_dataset(pos_path="positive_data.json", neg_path="negative_data.json") -
     return df
 
 
+# TRAINING AND EVALUATION
+def train_and_evaluate(df: pd.DataFrame):
+    df["processed_text"] = df["sentence"].astype(str).apply(preprocess_text)
+    y = df["label"].map({"positive": 1, "negative": 0}).values
+    
+    #TF-IDF Vectorization
+    vectorizer = TfidfVectorizer(ngram_range=(1,2), min_df=5)
+    x = vectorizer.fit_transform(df["processed_text"])
+    
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 
-# Apply preprocessing
-df['processed_text'] = df['sentence'].apply(preprocess_text)
-print(df[['sentence', 'processed_text']].head())
-
-# Vectorization
-vectorizer = CountVectorizer()
-x = vectorizer.fit_transform(df['processed_text'])
-y = df['label'].map({'positive': 1, 'negative': 0}).values
-
-print(f"Feature matrix shape: {x.shape}")
-
-# Split data into training and testing sets
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
-
-# Train Naive Bayes classifier
-model = MultinomialNB()
-model.fit(x_train, y_train)
-
-# Evaluate the model
-y_pred = model.predict(x_test)
-print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-# Confusion Matrix
-cm = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(cm)
-
-# Visualize Confusion Matrix
-plt.figure(figsize=(8,6))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
-plt.title('Confusion Matrix')
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-plt.show()
+    model = MultinomialNB()
+    model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
+    print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
+    cm = confusion_matrix(y_test, y_pred)
+    print("Confusion Matrix:")
+    print(cm)
+    
+    return model, vectorizer
 
 #Sentiment Analysis using VADER
 sia = SentimentIntensityAnalyzer()
