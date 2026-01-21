@@ -96,7 +96,9 @@ def get_vader_sentiment(text):
         return 'negative'
     else:
         return 'neutral'
-    
+  
+  
+# Test VADER sentiment analysis on sample sentences  
 sample_sentences = [
     "I love this product! It works great and exceeds my expectations.",
     "This is the worst service I have ever received.",
