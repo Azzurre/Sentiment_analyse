@@ -120,9 +120,52 @@ def predict_sentiment_ml(text: str, model, vectorizer):
     label = 'positive' if pred == 1 else 'negative'
     return label, confidence
 
-# Test VADER sentiment analysis on a sample text
-sample_text = "I love this product! It works great and exceeds my expectations."
-print(get_vader_sentiment(sample_text)) 
+def predict_sentiment_vader(text: str):
+    scores = sia.polarity_scores(text)
+    compound = scores['compound']
+    if compound >= 0.05:
+        return 'positive', float(compound)
+    elif compound <= -0.05:
+        return 'negative', float(compound)
+    else:
+        return 'neutral', float(compound)
+
+# analyze social media post
+def analyze_social_post(text: str, model, vectorizer):
+    ml_label, ml_confidence = predict_sentiment_ml(text, model, vectorizer)
+    vader_label, vader_confidence = predict_sentiment_vader(text)
+    if vader_label == 'neutral':
+        final = ml_label
+        reason = "VADER neutral, using ML result"
+    elif vader_label == ml_label:
+        final = ml_label
+        reason = "Both methods agree"
+    else:
+        final = ml_label
+        reason = "Methods disagree, using ML result"
+    
+    return {
+        "text": text,
+        "ml": {"label": ml_label, "confidence": round(ml_confidence, 3)},
+        "vader": {"label": vader_label, "confidence": round(vader_confidence, 3)},
+        "final_label": final,
+        "note": reason
+    }
+
+
+# Save load
+def save_artifacts(model, vectorizer, model_path="sentiment_model.joblib", vectorizer_path="vectorizer.joblib"):
+    joblib.dump(model, model_path)
+    joblib.dump(vectorizer, vectorizer_path)
+def load_artifacts(model_path="sentiment_model.joblib", vectorizer_path="vectorizer.joblib"):
+    model = joblib.load(model_path)
+    vectorizer = joblib.load(vectorizer_path)
+    return model, vectorizer
+
+if __name__ == "__main__":
+    setup_nltk()
+    
+    df = load_dataset
 
 # Apply VADER sentiment analysis to the entire dataset
 df['vader_sentiment'] = df['sentence'].apply(get_vader_sentiment)
