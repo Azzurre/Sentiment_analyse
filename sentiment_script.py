@@ -1,4 +1,5 @@
 import nltk
+import re
 import pandas as pd
 import json
 import random
@@ -12,44 +13,76 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-nltk.download('all')
+# Download necessary NLTK data packages
+
+def download_nltk_data():
+    needed = [
+        'punkt',
+        'stopwords',
+        'wordnet',
+        'vader_lexicon',
+        'omw-1.4'
+    ]
+
+    for package in needed:
+        nltk.download(package)
 print("All NLTK data packages have been downloaded.")
 
-# Load sentiment data from JSON files
-with open('positive_data.json', 'r') as f:
-    positive_data = json.load(f)
 
-with open('negative_data.json', 'r') as f:
-    negative_data = json.load(f)
-    
-data = positive_data + negative_data
-random.shuffle(data)
+#Social Media Sentiment Analysis Script
 
-print(f"Total records loaded: {len(data)}")
+URL_RE = re.compile(r"https?://\S+|www\.\S+")
+MENTION_RE = re.compile(r"@\w+")
+HASHTAG_RE = re.compile(r"#\w+")
+REPEAT_RE = re.compile(r"(.)\1{2,}", re.DOTALL)
 
-# Create DataFrame
-df = pd.DataFrame(data)
-print(df['label'].value_counts())
+stop_words = set(stopwords.words('english'))
+lemmatizer = WordNetLemmatizer()
 
-df.head()
-# Preprocess text data
+
+# Preprocess data
 def preprocess_text(text):
-    # Tokenization
-    tokens = word_tokenize(text.lower())
+    text = text.lower()
+    # Remove URLs, mentions, hashtags
+    text = URL_RE.sub(' <URL> ', text)
+    text = MENTION_RE.sub(' <MENTION> ', text)
     
-    # Remove stop words
-    stop_words = set(stopwords.words('english'))
-    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+    # Remove hashtags but keep the text
+    text = REPEAT_RE.sub(r"\1\1", text)
     
-    # Lemmatization
-    lemmatizer = WordNetLemmatizer()
-    lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
+    # Keep hashtags as words (strip # but keep the token)
+    hastags = HASHTAG_RE.findall(text)
+    for h in hashtags:
+        text = text.replace(h, "hashtag_" + h[1:])  # Remove '#' but keep the word
     
-    return ' '.join(lemmatized_tokens)
+    text = re.sub (r"[^a-z0-9\s]", "", text)
+    tokens = word_tokenize(text)
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
+    return ' '.join(tokens)
+
+
+# Load dataset
+def load_dataset(pos_path="positive_data.json", neg_path="negative_data.json") -> pd.DataFrame:
+    with open(pos_path, "r", encoding="utf-8") as f:
+        pos = json.load(f)
+    with open(neg_path, "r", encoding="utf-8") as f:
+        neg = json.load(f)
+        
+    data = pos + neg
+    random.shuffle(data)
+    
+    df = pd.DataFrame(data)
+    if "sentence" not in df.columns or "label" not in df.columns:
+        raise ValueError("Dataset must contain 'sentence' and 'label' fields.")
+
+    return df
+
+
+
 # Apply preprocessing
 df['processed_text'] = df['sentence'].apply(preprocess_text)
 print(df[['sentence', 'processed_text']].head())
