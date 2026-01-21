@@ -4,12 +4,13 @@ import json
 import random
 import string
 
-
+from sklearn.model_selection import train_test_split
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
 
 nltk.download('all')
 print("All NLTK data packages have been downloaded.")
@@ -56,6 +57,9 @@ y = df['label'].map({'positive': 1, 'negative': 0}).values
 
 print(f"Feature matrix shape: {x.shape}")
 
+# Split data into training and testing sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 
-
-
+# Train Naive Bayes classifier
+model = MultinomialNB()
+model.fit(x_train, y_train)
